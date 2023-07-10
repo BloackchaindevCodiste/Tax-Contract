@@ -78,6 +78,11 @@ describe("Token:", function () {
         await expect(Token.connect(addr1).setBuyTax(20)).to.be.revertedWith("Ownable: caller is not the owner");
 
     })
+    it("only owner can set buy sell percentage", async () => {
+        await expect(Token.connect(owner).setSellTax(1001)).to.be.revertedWith("Limit exceed(can not set more than 10 percent)");
+        await expect(Token.connect(owner).setBuyTax(1001)).to.be.revertedWith("Limit exceed(can not set more than 10 percent)");
+
+    })
 
     // it("admin should set buy percentage", async () => {
     //     await Token.setBuyTax(50);
