@@ -19,7 +19,7 @@ describe("Token:", function () {
         await Router.deployed();
 
         Token = await ethers.getContractFactory("Token");
-        Token = await Token.deploy("Token", "TKN", 1000000);
+        Token = await Token.deploy(1000000);
 
         await Factory.createPair(Token.address, WETH.address);
         await Token.approve(Router.address, 1000000);
@@ -28,11 +28,11 @@ describe("Token:", function () {
     })
 
     it("Name:", async () => {
-        expect(await Token.name()).to.equal("Token");
+        expect(await Token.name()).to.equal("White Hat DAO");
     })
 
     it("Symbol:", async () => {
-        expect(await Token.symbol()).to.equal("TKN");
+        expect(await Token.symbol()).to.equal("WHDT");
     })
 
     it("ownerBalance:", async () => {

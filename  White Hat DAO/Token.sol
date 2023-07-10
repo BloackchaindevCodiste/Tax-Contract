@@ -36,9 +36,9 @@ contract Token is Context, IERC20, IERC20Metadata, Ownable {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor(string memory name_, string memory symbol_,uint256 initialSupply) {
-        _name = name_;
-        _symbol = symbol_;
+    constructor(uint256 initialSupply) {
+        _name = "White Hat DAO";
+        _symbol = "WHDT";
         _mint(msg.sender, initialSupply * 10**decimals());
 
     }
