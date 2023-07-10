@@ -15,7 +15,7 @@ contract Token is Context, IERC20, IERC20Metadata, Ownable {
     string private _symbol;
 
     uint256 private _totalSupply;
-
+    uint256 private _upperLimmitOfTaxPercentage=1000;
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -366,10 +366,12 @@ contract Token is Context, IERC20, IERC20Metadata, Ownable {
 
 
     function setSellTax(uint256 percentage) public onlyOwner {
+        require(_upperLimmitOfTaxPercentage>=percentage,"Limit exceed(can not set more than 10 percent)");
         sellTax = percentage;
     }
 
     function setBuyTax(uint256 percentage) public onlyOwner {
+        require(_upperLimmitOfTaxPercentage>=percentage,"Limit exceed(can not set more than 10 percent)");
         buyTax = percentage;
     }
 

@@ -63,7 +63,7 @@ module.exports = {
       url: "https://polygon-mumbai.g.alchemy.com/v2/IG7pWzRCXsdYf740rjB-g-z_m1_v5rHY",
       chainId: 80001,
       gasPrice: 20000000000,
-      accounts: [process.env.privateKey]
+      accounts: [process.env.privateKey,"891eae0c1295f24bc99d87f3b12ad6b407b922326ac6cf2fd165194b6b608684","a54519a6da87c7e6b7a08d07f26d582c3ffcce9a6d94da65f3e6abdb5a62b933","5346d09c19f5c015c0092cf5463262a5c0d9eac663170b4dc00a6c16e8b2025f","83612c2f9d05808436ffece38cd3d5536a441af682908d402d2db4669e756ba6"]
     },
     goerli: {
       url: "https://goerli.infura.io/v3/47c3c405d0454304b32e0c8101924aa6",
