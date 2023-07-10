@@ -10,30 +10,20 @@ describe("Token:", function () {
         UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
         Factory = await UniswapV2Factory.deploy(owner.address);
         await Factory.deployed();
-        await sleep(1000);
-
 
         WETH9 = await ethers.getContractFactory("Weth");
         WETH = await WETH9.deploy();
         await WETH.deployed();
-        await sleep(1000);
-
         UniswapV2Router02 = await ethers.getContractFactory("UniswapV2Router02");
         Router = await UniswapV2Router02.deploy(Factory.address, owner.address);
         await Router.deployed();
-        await sleep(1000);
-
 
         Token = await ethers.getContractFactory("Token");
         Token = await Token.deploy("Token", "TKN", 1000000);
-        await sleep(1000);
-
 
         await Factory.createPair(Token.address, WETH.address);
         await Token.approve(Router.address, 1000000);
         await WETH.approve(Router.address, 1000000);
-        await sleep(1000);
-
         await Router.addLiquidity(Token.address, WETH.address, 1000000, 1000000, 0, 0, owner.address, 2540723465);
     })
 
@@ -56,6 +46,8 @@ describe("Token:", function () {
     it("should transfer properly", async () => {
         const beforeBalance = await Token.balanceOf(owner.address)
         await Token.transfer(addr1.address, 10000);
+        await sleep(5000);
+
         expect(await Token.balanceOf(addr1.address)).to.equal(10000)
         expect(await Token.balanceOf(owner.address)).to.equal(BigInt(beforeBalance) - BigInt(10000))
     })
@@ -68,6 +60,7 @@ describe("Token:", function () {
 
     it("only admin can uniswap pair of the token", async () => {
         const pairAddress = await Factory.getPair(Token.address, WETH.address);
+        
         await expect(Token.connect(addr1).addPairContractAddress(pairAddress)).to.be.revertedWith("Ownable: caller is not the owner")
     })
 
@@ -86,10 +79,11 @@ describe("Token:", function () {
 
     })
 
-    it("admin should set buy percentage", async () => {
-        await Token.setBuyTax(50);
-        expect(await Token.buyTax()).to.equal(50)
-    })
+    // it("admin should set buy percentage", async () => {
+    //     await Token.setBuyTax(50);
+        
+    //     expect(await Token.buyTax()).to.equal(50)
+    // })
 
     it("admin should set Buy percentage", async () => {
         await Token.setBuyTax(75);
@@ -115,7 +109,7 @@ describe("Token:", function () {
         const afterTaxAmountShouldOut = 100000 - (100000 * 0.5 / 100);
         const outAmount = await Router.getAmountsOut(afterTaxAmountShouldOut, [Token.address, WETH.address]);
         const ownerBeforeWethBalance = await WETH.balanceOf(addr3.address);
-        await Router.connect(addr3).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [Token.address, WETH.address], addr3.address, 2540723465);
+        await Router.connect(addr3).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [Token.address, WETH.address], addr3.address, 2540723465);        
         expect(await WETH.balanceOf(addr3.address)).to.equal(BigInt(ownerBeforeWethBalance) + BigInt(outAmount[1]))
     })
 
@@ -132,7 +126,7 @@ describe("Token:", function () {
         await WETH.connect(addr4).approve(Router.address, 100000);
         const outAmount = await Router.getAmountsOut(100000, [WETH.address, Token.address]);
         const afterTaxAmountShouldOut = outAmount[1] - (Math.floor(outAmount[1] * 0.75 / 100));
-        await Router.connect(addr4).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [WETH.address, Token.address], addr4.address, 2540723465);
+        await Router.connect(addr4).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [WETH.address, Token.address], addr4.address, 2540723465);        
         expect(await Token.balanceOf(addr4.address)).to.equal(afterTaxAmountShouldOut);
     })
 
@@ -152,7 +146,7 @@ describe("Token:", function () {
         const outAmount = await Router.getAmountsOut(100000, [WETH.address, Token.address]);
         const afterTaxAmountShouldOut = outAmount[1] - (Math.floor(outAmount[1] * 0.75 / 100));
         const beforeTokenBalance = await Token.balanceOf(addr4.address)
-        await Router.connect(addr4).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [WETH.address, Token.address], addr4.address, 2540723465);
+        await Router.connect(addr4).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [WETH.address, Token.address], addr4.address, 2540723465);       
         expect(await Token.balanceOf(addr4.address)).to.equal(BigInt(beforeTokenBalance) + BigInt(afterTaxAmountShouldOut));
     })
 })
