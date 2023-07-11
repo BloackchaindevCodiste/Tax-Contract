@@ -18,8 +18,9 @@ describe("Token:", function () {
         Router = await UniswapV2Router02.deploy(Factory.address, owner.address);
         await Router.deployed();
 
-        Token = await ethers.getContractFactory("Token");
-        Token = await Token.deploy(1000000);
+        Token = await ethers.getContractFactory("WhiteHatDAOToken");
+        Token = await Token.deploy();
+        expect(await Token.balanceOf(owner.address)).to.equal('1000000000000000000');
 
         await Factory.createPair(Token.address, WETH.address);
         await Token.approve(Router.address, 1000000);
@@ -28,7 +29,7 @@ describe("Token:", function () {
     })
 
     it("Name:", async () => {
-        expect(await Token.name()).to.equal("White Hat DAO");
+        expect(await Token.name()).to.equal("White Hat DAO Token");
     })
 
     it("Symbol:", async () => {
@@ -36,7 +37,7 @@ describe("Token:", function () {
     })
 
     it("ownerBalance:", async () => {
-        expect(await Token.balanceOf(owner.address)).to.equal('9999999999000000');
+        expect(await Token.balanceOf(owner.address)).to.equal('999999999999000000');
     })
 
     it("decimals", async () => {
@@ -52,15 +53,14 @@ describe("Token:", function () {
         expect(await Token.balanceOf(owner.address)).to.equal(BigInt(beforeBalance) - BigInt(10000))
     })
 
-    it("admin can uniswap pair of the token", async () => {
+    it("admin can add uniswap pair of the token", async () => {
         const pairAddress = await Factory.getPair(Token.address, WETH.address);
         await Token.addPairContractAddress(pairAddress)
         expect(await Token.uniswapV2Pair(pairAddress)).to.equal(true);
     })
 
     it("only admin can uniswap pair of the token", async () => {
-        const pairAddress = await Factory.getPair(Token.address, WETH.address);
-        
+        const pairAddress = await Factory.getPair(Token.address, WETH.address);        
         await expect(Token.connect(addr1).addPairContractAddress(pairAddress)).to.be.revertedWith("Ownable: caller is not the owner")
     })
 
@@ -78,18 +78,13 @@ describe("Token:", function () {
         await expect(Token.connect(addr1).setBuyTax(20)).to.be.revertedWith("Ownable: caller is not the owner");
 
     })
-    it("only owner can set buy sell percentage", async () => {
+    it("tax should not more than 10 percent", async () => {
         await expect(Token.connect(owner).setSellTax(1001)).to.be.revertedWith("Limit exceed(can not set more than 10 percent)");
         await expect(Token.connect(owner).setBuyTax(1001)).to.be.revertedWith("Limit exceed(can not set more than 10 percent)");
 
     })
 
-    // it("admin should set buy percentage", async () => {
-    //     await Token.setBuyTax(50);
-        
-    //     expect(await Token.buyTax()).to.equal(50)
-    // })
-
+   
     it("admin should set Buy percentage", async () => {
         await Token.setBuyTax(75);
         expect(await Token.buyTax()).to.equal(75)
@@ -108,13 +103,13 @@ describe("Token:", function () {
         expect(await WETH.balanceOf(owner.address)).to.equal(BigInt(ownerBeforeWethBalance) + BigInt(outAmount[1]))
     })
 
-    it("Tax should not cut for the other users to sell token ", async () => {
-        await Token.transfer(addr3.address, 100000);
-        await Token.connect(addr3).approve(Router.address, 100000);
-        const afterTaxAmountShouldOut = 100000 - (100000 * 0.5 / 100);
+    it("Tax should cut for the other users to sell token ", async () => {
+        await Token.transfer(addr3.address, 1000000);
+        await Token.connect(addr3).approve(Router.address, 1000000);
+        const afterTaxAmountShouldOut = 1000000 - (1000000 * 0.5 / 100);
         const outAmount = await Router.getAmountsOut(afterTaxAmountShouldOut, [Token.address, WETH.address]);
         const ownerBeforeWethBalance = await WETH.balanceOf(addr3.address);
-        await Router.connect(addr3).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [Token.address, WETH.address], addr3.address, 2540723465);        
+        await Router.connect(addr3).swapExactTokensForTokensSupportingFeeOnTransferTokens(1000000, 0, [Token.address, WETH.address], addr3.address, 2540723465);        
         expect(await WETH.balanceOf(addr3.address)).to.equal(BigInt(ownerBeforeWethBalance) + BigInt(outAmount[1]))
     })
 
@@ -126,7 +121,7 @@ describe("Token:", function () {
         expect(await Token.balanceOf(owner.address)).to.equal(BigInt(ownerBeforeWethBalance) + BigInt(outAmount[1]))
     })
 
-    it("Tax should not cut for the other users to Buy token ", async () => {
+    it("Tax should  cut for the other users to Buy token ", async () => {
         await WETH.transfer(addr4.address, 100000);
         await WETH.connect(addr4).approve(Router.address, 100000);
         const outAmount = await Router.getAmountsOut(100000, [WETH.address, Token.address]);
@@ -139,13 +134,21 @@ describe("Token:", function () {
         await Token.excludeFromFee(addr4.address);
         expect(await Token.isExcludedFromFee(addr4.address)).to.be.equal(true)
     })
+    it("Tax should  cut for the excluded users to Buy token ", async () => {
+        await WETH.transfer(addr4.address, 100000);
+        await WETH.connect(addr4).approve(Router.address, 100000);
+        const outAmount = await Router.getAmountsOut(100000, [WETH.address, Token.address]);
+        const beforeTokenBalance = await Token.balanceOf(addr4.address)
+        await Router.connect(addr4).swapExactTokensForTokensSupportingFeeOnTransferTokens(100000, 0, [WETH.address, Token.address], addr4.address, 2540723465);       
+        expect(await Token.balanceOf(addr4.address)).to.equal(BigInt(beforeTokenBalance) + BigInt(outAmount[1]));
+    })
 
-    it("admin can exclude user from fees", async () => {
+    it("admin can include user for fees", async () => {
         await Token.includeInFee(addr4.address);
         expect(await Token.isExcludedFromFee(addr4.address)).to.be.equal(false)
     })
 
-    it("Tax should not cut for the other users to Buy token ", async () => {
+    it("Tax should  cut for the other users to Buy token ", async () => {
         await WETH.transfer(addr4.address, 100000);
         await WETH.connect(addr4).approve(Router.address, 100000);
         const outAmount = await Router.getAmountsOut(100000, [WETH.address, Token.address]);
