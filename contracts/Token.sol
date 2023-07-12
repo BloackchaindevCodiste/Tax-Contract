@@ -3,23 +3,19 @@ pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
-import "./interfaces.sol";
 
 contract WhiteHatDAOToken is
     ERC20,
-    ERC20Burnable,
     ERC20Snapshot,
     Ownable,
     ERC20Permit,
     ERC20Votes
 {
     using SafeMath for uint256;
-    IUniswapV2Router02 public uniswapV2Router;
     uint256 private _upperLimmitOfTaxPercentage = 1000;
     mapping(address => bool) public isExcludedFromFee;
     mapping(address => bool) public restrictedUser;
@@ -27,12 +23,7 @@ contract WhiteHatDAOToken is
     uint256 public buyTax;
     uint256 public sellTax;
 
-    constructor(
-        address _router
-    ) ERC20("White Hat DAO Token", "WHDT") ERC20Permit("WhiteHatDAOToken") {
-        uniswapV2Router = IUniswapV2Router02(_router);
-        address pairWithWETH = IUniswapV2Factory(uniswapV2Router.factory()).createPair(address(this), uniswapV2Router.WETH());
-        uniswapV2Pair[pairWithWETH] = true;
+    constructor() ERC20("White Hat DAO Token", "WHDT") ERC20Permit("WhiteHatDAOToken") {
         isExcludedFromFee[owner()] = true;
         _mint(msg.sender, 100000000 * 10 ** decimals());
     }
@@ -161,10 +152,10 @@ contract WhiteHatDAOToken is
         super._mint(to, amount);
     }
 
-    function burn( uint256 amount) public override onlyOwner {
-        super.burn( amount);
+    function burn(uint256 amount) public onlyOwner {
+        _burn(msg.sender,amount);
     }
-    
+   
     function _burn(
         address account,
         uint256 amount

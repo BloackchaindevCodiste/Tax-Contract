@@ -19,7 +19,7 @@ describe("Token:", function () {
         await Router.deployed();
 
         Token = await ethers.getContractFactory("WhiteHatDAOToken");
-        Token = await Token.deploy(Router.address);
+        Token = await Token.deploy();
         expect(await Token.balanceOf(owner.address)).to.equal('1000000000000000000');
 
         // await Factory.createPair(Token.address, WETH.address);
