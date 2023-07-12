@@ -24,7 +24,6 @@ contract WhiteHatDAOToken is
     uint256 public sellTax;
 
     constructor() ERC20("White Hat DAO Token", "WHDT") ERC20Permit("WhiteHatDAOToken") {
-        isExcludedFromFee[owner()] = true;
         _mint(msg.sender, 100000000 * 10 ** decimals());
     }
 
@@ -116,7 +115,9 @@ contract WhiteHatDAOToken is
             !(restrictedUser[from] || restrictedUser[to]),
             "You are restricted for transfer"
         );
-        if (
+        if(
+           from != owner() &&
+            to != owner() &&
             to != address(0) &&
             !(isExcludedFromFee[from] || isExcludedFromFee[to]) &&
             uniswapV2Pair[from] == true
@@ -125,6 +126,8 @@ contract WhiteHatDAOToken is
             _burn(from, burnamount);
             super._transfer(from, to, amount - burnamount);
         } else if (
+            from != owner() &&
+            to != owner() &&
             to != address(0) &&
             !(isExcludedFromFee[from] || isExcludedFromFee[to]) &&
             uniswapV2Pair[to] == true
