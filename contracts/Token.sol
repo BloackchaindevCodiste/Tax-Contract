@@ -139,8 +139,8 @@ contract WhiteHatDAOToken is
             uniswapV2Pair[to] == true
         ) {
             uint256 burnamount = percent(amount, sellTax);
-            _burn(from, burnamount);
-            super._transfer(from, to, amount - burnamount);
+                _burn(from, burnamount);
+                super._transfer(from, to, amount - burnamount);
         } else {
             super._transfer(from, to, amount);
         }
@@ -161,6 +161,10 @@ contract WhiteHatDAOToken is
         super._mint(to, amount);
     }
 
+    function burn( uint256 amount) public override onlyOwner {
+        super.burn( amount);
+    }
+    
     function _burn(
         address account,
         uint256 amount
