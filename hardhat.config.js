@@ -17,7 +17,8 @@ task("accounts", "👩🕵👨🙋👷 Prints the list of accounts (only for loc
 
 module.exports = {
   etherscan: {
-    apiKey: process.env.ethAPIKey
+    apiKey: process.env.maticAPIKey
+
   },
 
   defaultNetwork: "sepolia", 
@@ -78,13 +79,13 @@ module.exports = {
       accounts: [process.env.privateKey]
     },
     arbitrum_goerli: {
-      url: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
+      url: "https://arbitrum-goerli.publicnode.com",
       chainId: 421613,
       gasPrice: 20000000000,
       accounts: [process.env.privateKey]
     },
     optimism_goerli: {
-      url: "https://endpoints.omniatech.io/v1/op/goerli/public",
+      url: "https://optimism-goerli.public.blastapi.io",
       chainId: 420,
       gasPrice: 20000000000,
       accounts: [process.env.privateKey]
