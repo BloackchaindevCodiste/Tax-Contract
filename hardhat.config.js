@@ -17,7 +17,7 @@ task("accounts", "👩🕵👨🙋👷 Prints the list of accounts (only for loc
 
 module.exports = {
   etherscan: {
-    apiKey: process.env.maticAPIKey
+    apiKey: process.env.bscAPIKey
 
   },
 
@@ -85,7 +85,7 @@ module.exports = {
       accounts: [process.env.privateKey]
     },
     optimism_goerli: {
-      url: "https://optimism-goerli.public.blastapi.io",
+      url: "https://goerli.optimism.io",
       chainId: 420,
       gasPrice: 20000000000,
       accounts: [process.env.privateKey]
