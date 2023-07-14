@@ -55,13 +55,13 @@ describe("Token:", function () {
 
     it("admin can add uniswap pair of the token", async () => {
         const pairAddress = await Factory.getPair(Token.address, WETH.address);
-        await Token.addPairContractAddress(pairAddress)
-        expect(await Token.uniswapV2Pair(pairAddress)).to.equal(true);
+        await Token.addLiquidityPairAddress(pairAddress)
+        expect(await Token.liquidityPair(pairAddress)).to.equal(true);
     })
 
     it("only admin can uniswap pair of the token", async () => {
         const pairAddress = await Factory.getPair(Token.address, WETH.address);        
-        await expect(Token.connect(addr1).addPairContractAddress(pairAddress)).to.be.revertedWith("Ownable: caller is not the owner")
+        await expect(Token.connect(addr1).addLiquidityPairAddress(pairAddress)).to.be.revertedWith("Ownable: caller is not the owner")
     })
 
     it("admin can blacklist a user", async () => {

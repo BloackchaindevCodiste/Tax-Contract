@@ -19,7 +19,7 @@ contract WhiteHatDAOToken is
     uint256 private _upperLimmitOfTaxPercentage = 1000;
     mapping(address => bool) public isExcludedFromFee;
     mapping(address => bool) public restrictedUser;
-    mapping(address => bool) public uniswapV2Pair;
+    mapping(address => bool) public liquidityPair;
     uint256 public buyTax;
     uint256 public sellTax;
 
@@ -86,8 +86,8 @@ contract WhiteHatDAOToken is
         }
     }
 
-    function addPairContractAddress(address pairAddress) public onlyOwner {
-        uniswapV2Pair[pairAddress] = true;
+    function addLiquidityPairAddress(address pairAddress) public onlyOwner {
+        liquidityPair[pairAddress] = true;
     }
 
     function _beforeTokenTransfer(
@@ -120,7 +120,7 @@ contract WhiteHatDAOToken is
             to != owner() &&
             to != address(0) &&
             !(isExcludedFromFee[from] || isExcludedFromFee[to]) &&
-            uniswapV2Pair[from] == true
+            liquidityPair[from] == true
         ) {
             uint256 burnamount = percent(amount, buyTax);
             _burn(from, burnamount);
@@ -130,7 +130,7 @@ contract WhiteHatDAOToken is
             to != owner() &&
             to != address(0) &&
             !(isExcludedFromFee[from] || isExcludedFromFee[to]) &&
-            uniswapV2Pair[to] == true
+            liquidityPair[to] == true
         ) {
             uint256 burnamount = percent(amount, sellTax);
                 _burn(from, burnamount);
